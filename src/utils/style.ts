@@ -1,5 +1,11 @@
-const colors = {backgroundColor: '#118AB2'};
+const colors = {
+  backgroundColor: '#118AB2',
+  purple: '#5B58AD',
+  white: '#FFFFFF',
+  black: '#000000',
+  gray: '#D9D9D9',
+  darkGray: '#696969',
+  blue: '#455EFF',
+};
 
-const GStyle = {colors: colors};
-
-export default {GStyle};
+export default {colors: colors};

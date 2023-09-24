@@ -1,20 +1,23 @@
 import React from 'react';
-import {SafeAreaView, ScrollView, StatusBar, View} from 'react-native';
-
-import {Header} from 'react-native/Libraries/NewAppScreen';
+import {SafeAreaView, ScrollView, StatusBar} from 'react-native';
 import {GStyle} from './src/utils';
-import MainScreen from './src/screen/MainScreen/MainScreen';
+import {Provider} from 'react-redux';
+import appStore, {persistor} from './src/store/store';
+import {PersistGate} from 'redux-persist/integration/react';
+import Main from './src/screen/Main';
 
 function App(): JSX.Element {
   return (
-    <SafeAreaView>
-      <StatusBar
-        barStyle={'light-content'}
-        backgroundColor={GStyle.GStyle.colors.backgroundColor}
-      />
-      <ScrollView contentInsetAdjustmentBehavior="automatic">
-        <MainScreen />
-      </ScrollView>
+    <SafeAreaView style={{flex: 1}}>
+      <Provider store={appStore}>
+        <StatusBar
+          barStyle={'light-content'}
+          backgroundColor={GStyle.colors.backgroundColor}
+        />
+        <PersistGate loading={null} persistor={persistor}>
+          <Main />
+        </PersistGate>
+      </Provider>
     </SafeAreaView>
   );
 }
