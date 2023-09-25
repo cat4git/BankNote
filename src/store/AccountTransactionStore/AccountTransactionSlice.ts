@@ -27,10 +27,8 @@ const accountTransactionSlice = createSlice({
       if (!state.data[userName]) {
         state.data[userName] = [];
       }
-      console.log(state.data[userName], action.payload);
       state.data[userName].push({...transaction, uniqueId: state.number});
       state.number += 1;
-      console.log('state', state);
     },
     deleteTransaction: (
       state,
@@ -60,7 +58,7 @@ const accountTransactionSlice = createSlice({
       const location = state.data[userName].findIndex(item => {
         return item.uniqueId === uniqueId;
       });
-      console.log('uniqueId', uniqueId, transaction);
+
       if (location) {
         state.data[userName][location] = {
           ...transaction,
@@ -85,11 +83,8 @@ const accountTransactionSlice = createSlice({
       }>,
     ) => {
       const {text, date} = action.payload;
-      console.log(action.payload);
-      // state.filterByDate = date;
-      // state.filterByText = text;
-      // console.log('setFilters', state);
-      return {...state, filterByDate: date, filterByText: text};
+      const filterEmpty = text === '' ? undefined : text;
+      return {...state, filterByDate: date, filterByText: filterEmpty};
     },
   },
 });

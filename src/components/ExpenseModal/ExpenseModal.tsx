@@ -46,12 +46,7 @@ const ExpenseModal = (props: IExpenseModal) => {
       setTitle(info.title);
       setAmount(info.amount + '');
       setDate(new Date(info.date));
-
       SetUniqueId(info.uniqueId);
-
-      console.log('info', info.date);
-    } else {
-      console.log('new record');
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
@@ -65,7 +60,7 @@ const ExpenseModal = (props: IExpenseModal) => {
             transaction: {
               title: title,
               amount: Number(amount),
-              date: date,
+              date: date.toISOString(),
             },
             userName: userName,
           }),
@@ -76,13 +71,12 @@ const ExpenseModal = (props: IExpenseModal) => {
             transaction: {
               title: title,
               amount: Number(amount),
-              date: date,
+              date: date.toISOString(),
             },
             userName: userName,
             uniqueId: uniqueId,
           }),
         );
-        // updateData();
       }
     }
     close();
@@ -101,11 +95,8 @@ const ExpenseModal = (props: IExpenseModal) => {
       !newText ||
       newText === '-'
     ) {
-      console.log('VVV');
       const withoutCommasAndDots = newText.replace(',', '');
       setAmount(withoutCommasAndDots);
-    } else {
-      console.log('XX');
     }
   };
 

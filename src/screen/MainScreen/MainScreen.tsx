@@ -13,6 +13,8 @@ import {useAppDispatch, useAppSelector} from '../../store/hooks/redux';
 import {
   allAccountTransactionSelector,
   currentUserNameSelector,
+  filterByDateSelector,
+  filterByTextSelector,
 } from '../../store/selectors';
 import {GStyle} from '../../utils';
 import {ExpenseModal, FilterModal} from '../../components';
@@ -27,6 +29,8 @@ const MainScreen = () => {
     'details',
   );
   const data = useAppSelector(allAccountTransactionSelector);
+  const filterByText = useAppSelector(filterByTextSelector);
+  const filterByDate = useAppSelector(filterByDateSelector);
   const userName = useAppSelector(currentUserNameSelector) || '';
   const [displayModalID, setDisplayModalID] = useState<number | undefined>(
     undefined,
@@ -34,13 +38,36 @@ const MainScreen = () => {
   const [displayFilter, setDisplayFilter] = useState(false);
   const dispatch = useAppDispatch();
 
-  const sum =
-    data[userName]?.reduce((sum, item) => sum + Number(item.amount), 0) || 0;
-  const filterData = data[userName];
+  const areDatesOnSameDay = (
+    isoDateString1: string,
+    isoDateString2: string,
+  ): boolean => {
+    const date1 = new Date(isoDateString1);
+    const date2 = new Date(isoDateString2);
 
+    return (
+      date1.getFullYear() === date2.getFullYear() &&
+      date1.getMonth() === date2.getMonth() &&
+      date1.getDate() === date2.getDate()
+    );
+  };
+
+  const filterData = data[userName]
+    .filter(
+      item =>
+        !filterByText ||
+        (filterByText && item.title.indexOf(filterByText) > -1),
+    )
+    .filter(
+      item =>
+        !filterByDate ||
+        (filterByDate && areDatesOnSameDay(item.date, filterByDate)),
+    );
+
+  const sum =
+    filterData?.reduce((sum, item) => sum + Number(item.amount), 0) || 0;
   const groupedByDate: Record<string, IBankingTransaction[]> = {};
 
-  // Group objects by formatted date string
   filterData?.forEach(item => {
     const date = new Date(item.date);
     const formattedDate = date.toLocaleDateString('en-GB');
@@ -82,98 +109,100 @@ const MainScreen = () => {
               <Text style={styles.filterText}> Filters</Text>
             </TouchableOpacity>
           </View>
-          <ScrollView style={{marginHorizontal: 20, marginTop: 10}}>
-            {groupedByDateKey?.map(dateKey => {
-              return (
-                <View key={dateKey}>
-                  <View style={styles.dateHeaderContainer}>
-                    <Text style={styles.dateHeaderText}>{dateKey}</Text>
-                  </View>
-                  {groupedByDate[dateKey]?.map((item, index) => {
-                    return (
-                      <View
-                        key={item.uniqueId}
-                        style={[
-                          styles.line,
-                          index !== 0 ? styles.lineBorder : {},
-                        ]}>
-                        <TouchableOpacity
-                          onPress={() => {
-                            Alert.alert(
-                              'Deletion confirmation',
-                              `You are about to delete the ${item.title}`,
-                              [
-                                {
-                                  text: 'Approval',
-                                  onPress: () => {
-                                    dispatch(
-                                      deleteTransaction({
-                                        uniqueId: item.uniqueId,
-                                        userName: userName,
-                                      }),
-                                    );
-                                  },
-                                  style: 'default',
-                                },
-                                {
-                                  text: 'Cancel',
-                                  onPress: () => {},
-                                  style: 'cancel',
-                                },
-                              ],
-                            );
-                          }}>
-                          <SvgXml xml={svgIcons.x} width="20" height="20" />
-                        </TouchableOpacity>
-                        <TouchableOpacity
+          <View style={styles.scrollContainer}>
+            <ScrollView style={styles.scrollView}>
+              {groupedByDateKey?.map(dateKey => {
+                return (
+                  <View key={dateKey}>
+                    <View style={styles.dateHeaderContainer}>
+                      <Text style={styles.dateHeaderText}>{dateKey}</Text>
+                    </View>
+                    {groupedByDate[dateKey]?.map((item, index) => {
+                      return (
+                        <View
+                          key={item.uniqueId}
                           style={[
-                            GStyle.generalStyle.center,
-                            GStyle.generalStyle.alignCenter,
-                          ]}
-                          onPress={() => {
-                            setDisplayModalID(item.uniqueId);
-                          }}>
-                          <View style={styles.titleContainer}>
-                            <Text style={styles.lineTitle}>{item.title}</Text>
-                          </View>
-                          <View>
-                            <View
-                              style={[
-                                GStyle.generalStyle.flexRow,
-                                GStyle.generalStyle.alignEnd,
-                              ]}>
-                              <Text style={styles.amountSubList}>$ </Text>
-                              <Text style={styles.amount}>
-                                {Math.floor(item.amount)}
-                              </Text>
-                              {item.amount > 0 ? (
-                                <View
-                                  style={[
-                                    GStyle.generalStyle.flexRow,
-                                    GStyle.generalStyle.alignEnd,
-                                  ]}>
-                                  <Text style={styles.amountSubList}>.</Text>
-                                  <Text style={styles.amountSubList}>
-                                    {(
-                                      ((Math.round(item.amount * 100) / 100) %
-                                        1) *
-                                      100
-                                    ).toFixed(0)}
-                                  </Text>
-                                </View>
-                              ) : (
-                                <></>
-                              )}
+                            styles.line,
+                            index !== 0 ? styles.lineBorder : {},
+                          ]}>
+                          <TouchableOpacity
+                            onPress={() => {
+                              Alert.alert(
+                                'Deletion confirmation',
+                                `You are about to delete the ${item.title}`,
+                                [
+                                  {
+                                    text: 'Approval',
+                                    onPress: () => {
+                                      dispatch(
+                                        deleteTransaction({
+                                          uniqueId: item.uniqueId,
+                                          userName: userName,
+                                        }),
+                                      );
+                                    },
+                                    style: 'default',
+                                  },
+                                  {
+                                    text: 'Cancel',
+                                    onPress: () => {},
+                                    style: 'cancel',
+                                  },
+                                ],
+                              );
+                            }}>
+                            <SvgXml xml={svgIcons.x} width="20" height="20" />
+                          </TouchableOpacity>
+                          <TouchableOpacity
+                            style={[
+                              GStyle.generalStyle.center,
+                              GStyle.generalStyle.alignCenter,
+                            ]}
+                            onPress={() => {
+                              setDisplayModalID(item.uniqueId);
+                            }}>
+                            <View style={styles.titleContainer}>
+                              <Text style={styles.lineTitle}>{item.title}</Text>
                             </View>
-                          </View>
-                        </TouchableOpacity>
-                      </View>
-                    );
-                  })}
-                </View>
-              );
-            })}
-          </ScrollView>
+                            <View>
+                              <View
+                                style={[
+                                  GStyle.generalStyle.flexRow,
+                                  GStyle.generalStyle.alignEnd,
+                                ]}>
+                                <Text style={styles.amountSubList}>$ </Text>
+                                <Text style={styles.amount}>
+                                  {Math.floor(item.amount)}
+                                </Text>
+                                {item.amount > 0 ? (
+                                  <View
+                                    style={[
+                                      GStyle.generalStyle.flexRow,
+                                      GStyle.generalStyle.alignEnd,
+                                    ]}>
+                                    <Text style={styles.amountSubList}>.</Text>
+                                    <Text style={styles.amountSubList}>
+                                      {(
+                                        ((Math.round(item.amount * 100) / 100) %
+                                          1) *
+                                        100
+                                      ).toFixed(0)}
+                                    </Text>
+                                  </View>
+                                ) : (
+                                  <></>
+                                )}
+                              </View>
+                            </View>
+                          </TouchableOpacity>
+                        </View>
+                      );
+                    })}
+                  </View>
+                );
+              })}
+            </ScrollView>
+          </View>
         </>
       ) : (
         <LogOutSectionModal length={data[userName].length} />
@@ -290,9 +319,9 @@ const styles = StyleSheet.create({
   },
   footerContainer: {
     position: 'absolute',
-    bottom: 0, // Places the element at the bottom of the screen
-    left: 0, // Aligns the element to the left
-    right: 0, // Aligns the element to the right
+    bottom: 0,
+    left: 0,
+    right: 0,
     borderTopWidth: StyleSheet.hairlineWidth,
     borderTopColor: GStyle.colors.gray,
     padding: 10,
@@ -365,6 +394,13 @@ const styles = StyleSheet.create({
     color: GStyle.colors.black,
     marginHorizontal: 16,
     marginVertical: 5,
+  },
+  scrollContainer: {
+    marginBottom: 170,
+  },
+  scrollView: {
+    marginHorizontal: 20,
+    marginTop: 10,
   },
 });
 export default MainScreen;

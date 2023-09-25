@@ -68,7 +68,6 @@ const styles = StyleSheet.create({
     paddingHorizontal: 25,
   },
   buttonText: {
-    // backgroundColor: GStyle.colors.white,
     fontSize: 16,
     fontWeight: '800',
     fontFamily: 'Helvetica',

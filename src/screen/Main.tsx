@@ -8,7 +8,6 @@ import {LoginScreen} from './LoginScreen';
 const Main = () => {
   const userName = useAppSelector(currentUserNameSelector);
   useEffect(() => {
-    // Add an event listener for the back button press
     const backHandler = BackHandler.addEventListener(
       'hardwareBackPress',
       () => {

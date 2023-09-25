@@ -114,6 +114,7 @@ const FilterModal = (props: IExpenseModal) => {
                 text: title,
               }),
             );
+            close();
           }}>
           <Text style={[GStyle.generalStyle.textTitle, styles.white]}>
             Filter
