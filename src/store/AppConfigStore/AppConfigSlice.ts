@@ -10,7 +10,7 @@ export const AppConfigStoreSlice = createSlice({
   initialState,
   reducers: {
     resetConfig: () => initialState,
-    setUserName: (state, action: PayloadAction<string>) => {
+    setUserName: (state, action: PayloadAction<string | undefined>) => {
       return {
         ...state,
         userName: action.payload,

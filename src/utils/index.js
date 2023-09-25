@@ -1,3 +1,4 @@
 import GStyle from './style';
+import removeItemByIndex from './removeItemByIndex';
 
-export {GStyle};
+export {GStyle, removeItemByIndex};
