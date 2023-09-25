@@ -10,7 +10,7 @@ import {
 import {useAppDispatch, useAppSelector} from '../../store/hooks/redux';
 import {GStyle} from '../../utils';
 import {setUserName} from '../../store/AppConfigStore/AppConfigSlice';
-import {currentUserName} from '../../store/selectors';
+import {currentUserNameSelector} from '../../store/selectors';
 
 const LoginScreen = () => {
   const [text, setText] = useState('');
@@ -20,7 +20,7 @@ const LoginScreen = () => {
     setText(username);
   };
 
-  const userName = useAppSelector(currentUserName);
+  const userName = useAppSelector(currentUserNameSelector);
   return (
     <View style={styles.container}>
       <Text>userName {userName} </Text>

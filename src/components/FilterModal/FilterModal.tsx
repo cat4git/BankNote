@@ -1,4 +1,4 @@
-import React, {useEffect, useState} from 'react';
+import React, {useState} from 'react';
 import {
   Dimensions,
   StyleSheet,
@@ -13,115 +13,49 @@ import {SvgXml} from 'react-native-svg';
 import svgIcons from '../../assets/svg';
 import {useAppDispatch, useAppSelector} from '../../store/hooks/redux';
 import {
-  addTransaction,
-  updateTransaction,
-} from '../../store/AccountTransactionStore/AccountTransactionSlice';
-import {allAccountTransaction, currentUserName} from '../../store/selectors';
+  filterByDateSelector,
+  filterByTextSelector,
+} from '../../store/selectors';
+import {setFilters} from '../../store/AccountTransactionStore/AccountTransactionSlice';
 
 interface IExpenseModal {
-  id: number;
   close: () => undefined;
 }
 
 const FilterModal = (props: IExpenseModal) => {
-  const {id, close} = props;
-  const [title, setTitle] = useState('');
-  const [amount, setAmount] = useState('');
-  const [date, setDate] = useState<Date | undefined>(undefined);
+  const {close} = props;
+  const filterByText = useAppSelector(filterByTextSelector);
+  const filterByDate = useAppSelector(filterByDateSelector);
+  const [title, setTitle] = useState<string | undefined>(filterByText);
+  const [date, setDate] = useState<Date | undefined>(
+    filterByDate ? new Date(filterByDate) : undefined,
+  );
   const [dateDialogIsOpen, setdateDialogIsOpen] = useState(false);
-  const [uniqueId, SetUniqueId] = useState(-1);
+
   const dispatch = useAppDispatch();
-  const userName = useAppSelector(currentUserName);
-  const data = useAppSelector(allAccountTransaction);
-
-  useEffect(() => {
-    if (id !== -1 && userName) {
-      const location = data[userName].findIndex(item => {
-        return item.uniqueId === id;
-      });
-      const info = data[userName][location];
-      setTitle(info.title);
-      setAmount(info.amount + '');
-      setDate(new Date(info.date));
-
-      SetUniqueId(info.uniqueId);
-
-      console.log('info', info.date);
-    } else {
-      console.log('new record');
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
-  const isDisable = title.length < 1 || amount.length < 0 || date === undefined;
-
-  const processData = () => {
-    if (date !== undefined && userName !== undefined) {
-      if (id === -1) {
-        dispatch(
-          addTransaction({
-            transaction: {
-              title: title,
-              amount: Number(amount),
-              date: date,
-            },
-            userName: userName,
-          }),
-        );
-      } else {
-        dispatch(
-          updateTransaction({
-            transaction: {
-              title: title,
-              amount: Number(amount),
-              date: date,
-            },
-            userName: userName,
-            uniqueId: uniqueId,
-          }),
-        );
-        // updateData();
-      }
-    }
-    close();
-  };
-
-  const isNumberOrCommaOrMinus = (input: string) => {
-    // Regular expression to match the valid format
-    const regex = /^-?\d+(\.\d{0,2})?$/;
-
-    return regex.test(input);
-  };
-  const validateNumberInput = (newText: string) => {
-    if (
-      isNumberOrCommaOrMinus(newText) ||
-      newText.length === 0 ||
-      !newText ||
-      newText === '-'
-    ) {
-      console.log('VVV');
-      const withoutCommasAndDots = newText.replace(',', '');
-      setAmount(withoutCommasAndDots);
-    } else {
-      console.log('XX');
-    }
-  };
 
   return (
     <View style={styles.background}>
       <View style={styles.container}>
-        <TouchableOpacity
-          style={styles.closeButton}
-          onPress={() => {
-            close();
-          }}>
-          <SvgXml xml={svgIcons.x} width="20" height="20" />
-        </TouchableOpacity>
-        <Text style={GStyle.generalStyle.textTitle}>
-          {id === -1 ? 'Create Expense' : 'Edit Expense'}
-        </Text>
+        <View style={styles.titleContainer}>
+          <TouchableOpacity
+            onPress={() => {
+              setTitle('');
+              setDate(undefined);
+            }}>
+            <Text style={styles.cleanText}>clean</Text>
+          </TouchableOpacity>
+          <Text style={styles.title}>Filters</Text>
+          <TouchableOpacity
+            onPress={() => {
+              close();
+            }}>
+            <SvgXml xml={svgIcons.x} width="20" height="20" />
+          </TouchableOpacity>
+        </View>
         <View style={styles.inputContainer}>
           <View>
-            <Text>{(title.length > 0 || id > -1) && 'Title'}</Text>
+            <Text>{title && title.length > 0 && 'Title'}</Text>
           </View>
 
           <TextInput
@@ -134,22 +68,7 @@ const FilterModal = (props: IExpenseModal) => {
 
         <View style={styles.inputContainer}>
           <View>
-            <Text>{(amount || id > -1) && 'Amount'}</Text>
-          </View>
-
-          <TextInput
-            style={styles.textInput}
-            placeholder="Amount"
-            onChangeText={input => {
-              validateNumberInput(input);
-            }}
-            value={amount}
-          />
-        </View>
-
-        <View style={styles.inputContainer}>
-          <View>
-            <Text>{(date || id > -1) && 'Date'}</Text>
+            <Text>{date && 'Date'}</Text>
           </View>
           <TouchableOpacity
             onPress={() => {
@@ -169,31 +88,37 @@ const FilterModal = (props: IExpenseModal) => {
             />
           </TouchableOpacity>
         </View>
-
-        <View style={[GStyle.generalStyle.center, styles.saveContainer]}>
-          <TouchableOpacity
-            disabled={isDisable}
-            style={[styles.button, isDisable ? styles.gray : {}]}
-            onPress={processData}>
-            <Text style={[GStyle.generalStyle.textTitle, styles.white]}>
-              {id === -1 ? 'Create' : 'Save'}
-            </Text>
-          </TouchableOpacity>
-        </View>
-
-        <DatePicker
-          modal
-          mode="date"
-          open={dateDialogIsOpen}
-          date={date || new Date()}
-          onConfirm={dateInput => {
-            setdateDialogIsOpen(false);
-            setDate(dateInput);
-          }}
-          onCancel={() => {
-            setdateDialogIsOpen(false);
-          }}
-        />
+        {dateDialogIsOpen && (
+          <DatePicker
+            modal
+            mode="date"
+            open={dateDialogIsOpen}
+            date={date || new Date()}
+            onConfirm={dateInput => {
+              setdateDialogIsOpen(false);
+              setDate(dateInput);
+            }}
+            onCancel={() => {
+              setdateDialogIsOpen(false);
+            }}
+          />
+        )}
+      </View>
+      <View style={[GStyle.generalStyle.center, styles.saveContainer]}>
+        <TouchableOpacity
+          style={styles.button}
+          onPress={() => {
+            dispatch(
+              setFilters({
+                date: date ? date.toISOString() : undefined,
+                text: title,
+              }),
+            );
+          }}>
+          <Text style={[GStyle.generalStyle.textTitle, styles.white]}>
+            Filter
+          </Text>
+        </TouchableOpacity>
       </View>
     </View>
   );
@@ -204,30 +129,20 @@ const styles = StyleSheet.create({
     position: 'absolute',
     height: Dimensions.get('window').height,
     width: '100%',
-    backgroundColor: GStyle.colors.darkGray,
+    backgroundColor: GStyle.colors.darkGray_70,
   },
   container: {
-    height: Dimensions.get('window').height - 30,
+    height: Dimensions.get('window').height - 230,
     width: '100%',
     backgroundColor: GStyle.colors.white,
     position: 'relative',
-    top: 30,
+    top: 230,
     borderTopLeftRadius: 24,
     borderTopRightRadius: 24,
-    paddingTop: 24 * 2,
+    paddingTop: 24,
     paddingHorizontal: 24,
   },
-  closeButton: {
-    position: 'absolute',
-    top: 12,
-    right: 12,
-  },
-  InputTitle: {
-    fontSize: 14,
-    fontFamily: 'Helvetica',
-    fontWeight: '400',
-    color: GStyle.colors.gray,
-  },
+
   textInput: {
     borderBottomColor: GStyle.colors.gray,
     borderBottomWidth: StyleSheet.hairlineWidth * 2,
@@ -236,9 +151,12 @@ const styles = StyleSheet.create({
   },
   inputContainer: {
     paddingBottom: 24,
+    paddingRight: 28,
   },
   white: {
     color: GStyle.colors.white,
+    fontSize: 16,
+    fontWeight: '700',
   },
   button: {
     backgroundColor: GStyle.colors.purple,
@@ -249,13 +167,26 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     textAlign: 'center',
   },
-  gray: {
-    backgroundColor: GStyle.colors.darkGray,
-  },
   saveContainer: {
     position: 'absolute',
     bottom: 62,
     width: Dimensions.get('screen').width,
+  },
+  titleContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+  },
+  cleanText: {
+    fontSize: 16,
+    fontFamily: 'Helvetica',
+    lineHeight: 16,
+    color: GStyle.colors.blue,
+  },
+  title: {
+    fontSize: 20,
+    fontFamily: 'Helvetica',
+    lineHeight: 21,
+    color: GStyle.colors.black,
   },
 });
 export default FilterModal;

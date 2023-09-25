@@ -1,12 +1,12 @@
 import React, {useEffect} from 'react';
 import {BackHandler, View} from 'react-native';
 import {useAppSelector} from '../store/hooks/redux';
-import {currentUserName} from '../store/selectors';
+import {currentUserNameSelector} from '../store/selectors';
 import MainScreen from './MainScreen/MainScreen';
 import {LoginScreen} from './LoginScreen';
 
 const Main = () => {
-  const userName = useAppSelector(currentUserName);
+  const userName = useAppSelector(currentUserNameSelector);
   useEffect(() => {
     // Add an event listener for the back button press
     const backHandler = BackHandler.addEventListener(

@@ -3,15 +3,17 @@ export interface IAccountTransactionStore {
     [user: string]: IBankingTransaction[];
   };
   number: 0;
+  filterByText?: string | undefined;
+  filterByDate?: string | undefined;
 }
 export interface IBankingTransaction {
   title: string;
   amount: number;
-  date: Date;
+  date: string;
   uniqueId: number;
 }
 export interface IBankingTransactionMissingID {
   title: string;
   amount: number;
-  date: Date;
+  date: string;
 }

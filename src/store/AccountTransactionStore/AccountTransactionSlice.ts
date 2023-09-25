@@ -8,6 +8,8 @@ import {removeItemByIndex} from '../../utils';
 const initialState: IAccountTransactionStore = {
   data: {},
   number: 0,
+  filterByText: undefined,
+  filterByDate: undefined,
 };
 
 const accountTransactionSlice = createSlice({
@@ -75,10 +77,29 @@ const accountTransactionSlice = createSlice({
       const {userName} = action.payload;
       state.data[userName] = [];
     },
+    setFilters: (
+      state,
+      action: PayloadAction<{
+        date: string | undefined;
+        text: string | undefined;
+      }>,
+    ) => {
+      const {text, date} = action.payload;
+      console.log(action.payload);
+      // state.filterByDate = date;
+      // state.filterByText = text;
+      // console.log('setFilters', state);
+      return {...state, filterByDate: date, filterByText: text};
+    },
   },
 });
 
-export const {addTransaction, deleteTransaction, updateTransaction, clearData} =
-  accountTransactionSlice.actions;
+export const {
+  addTransaction,
+  deleteTransaction,
+  updateTransaction,
+  clearData,
+  setFilters,
+} = accountTransactionSlice.actions;
 
 export default accountTransactionSlice.reducer;

@@ -16,7 +16,10 @@ import {
   addTransaction,
   updateTransaction,
 } from '../../store/AccountTransactionStore/AccountTransactionSlice';
-import {allAccountTransaction, currentUserName} from '../../store/selectors';
+import {
+  allAccountTransactionSelector,
+  currentUserNameSelector,
+} from '../../store/selectors';
 
 interface IExpenseModal {
   id: number;
@@ -31,8 +34,8 @@ const ExpenseModal = (props: IExpenseModal) => {
   const [dateDialogIsOpen, setdateDialogIsOpen] = useState(false);
   const [uniqueId, SetUniqueId] = useState(-1);
   const dispatch = useAppDispatch();
-  const userName = useAppSelector(currentUserName);
-  const data = useAppSelector(allAccountTransaction);
+  const userName = useAppSelector(currentUserNameSelector);
+  const data = useAppSelector(allAccountTransactionSelector);
 
   useEffect(() => {
     if (id !== -1 && userName) {
@@ -221,12 +224,6 @@ const styles = StyleSheet.create({
     position: 'absolute',
     top: 12,
     right: 12,
-  },
-  InputTitle: {
-    fontSize: 14,
-    fontFamily: 'Helvetica',
-    fontWeight: '400',
-    color: GStyle.colors.gray,
   },
   textInput: {
     borderBottomColor: GStyle.colors.gray,

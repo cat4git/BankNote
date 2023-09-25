@@ -1,7 +1,13 @@
 import {RootState} from './store';
 
-export const currentUserName = (state: RootState) =>
+export const currentUserNameSelector = (state: RootState) =>
   state.AppConfigStorReducer.userName;
 
-export const allAccountTransaction = (state: RootState) =>
+export const allAccountTransactionSelector = (state: RootState) =>
   state.AccountTransactionReducer.data;
+
+export const filterByTextSelector = (state: RootState) =>
+  state.AccountTransactionReducer.filterByText;
+
+export const filterByDateSelector = (state: RootState) =>
+  state.AccountTransactionReducer.filterByDate;

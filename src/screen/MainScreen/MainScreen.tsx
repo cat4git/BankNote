@@ -10,21 +10,24 @@ import {
   View,
 } from 'react-native';
 import {useAppDispatch, useAppSelector} from '../../store/hooks/redux';
-import {allAccountTransaction, currentUserName} from '../../store/selectors';
+import {
+  allAccountTransactionSelector,
+  currentUserNameSelector,
+} from '../../store/selectors';
 import {GStyle} from '../../utils';
-import {ExpenseModal} from '../../components';
+import {ExpenseModal, FilterModal} from '../../components';
 import svgIcons from '../../assets/svg';
 import {SvgXml} from 'react-native-svg';
 import {IBankingTransaction} from '../../store/AccountTransactionStore/AccountTransactionStoreInterface';
 import {deleteTransaction} from '../../store/AccountTransactionStore/AccountTransactionSlice';
-import LogOutSectionModal from '../../components/LogOutSection/LogOutSection';
+import LogOutSectionModal from '../../components/LogOutSectionModal/LogOutSection';
 
 const MainScreen = () => {
   const [pageDisplay, setPageDisplay] = useState<'details' | 'logout'>(
     'details',
   );
-  const data = useAppSelector(allAccountTransaction);
-  const userName = useAppSelector(currentUserName) || '';
+  const data = useAppSelector(allAccountTransactionSelector);
+  const userName = useAppSelector(currentUserNameSelector) || '';
   const [displayModalID, setDisplayModalID] = useState<number | undefined>(
     undefined,
   );
@@ -225,7 +228,13 @@ const MainScreen = () => {
           }}
         />
       )}
-      {displayFilter&&(<>)}
+      {displayFilter && (
+        <FilterModal
+          close={() => {
+            setDisplayFilter(false);
+          }}
+        />
+      )}
     </SafeAreaView>
   );
 };

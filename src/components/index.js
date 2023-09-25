@@ -1,4 +1,4 @@
 import {ExpenseModal} from './ExpenseModal';
-import {LogOutSection} from './LogOutSection';
-
-export {ExpenseModal, LogOutSection};
+import {LogOutSectionModal} from './LogOutSectionModal';
+import {FilterModal} from './FilterModal';
+export {ExpenseModal, LogOutSectionModal, FilterModal};

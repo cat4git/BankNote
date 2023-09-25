@@ -3,7 +3,7 @@ import {StyleSheet, Text, TouchableOpacity, View} from 'react-native';
 import {GStyle} from '../../utils';
 import {useAppDispatch, useAppSelector} from '../../store/hooks/redux';
 import {setUserName} from '../../store/AppConfigStore/AppConfigSlice';
-import {currentUserName} from '../../store/selectors';
+import {currentUserNameSelector} from '../../store/selectors';
 import {clearData} from '../../store/AccountTransactionStore/AccountTransactionSlice';
 
 interface ILogOutSection {
@@ -13,7 +13,7 @@ interface ILogOutSection {
 const LogOutSectionModal = (props: ILogOutSection) => {
   const {length} = props;
   const dispatch = useAppDispatch();
-  const userName = useAppSelector(currentUserName) || '';
+  const userName = useAppSelector(currentUserNameSelector) || '';
   return (
     <View style={styles.container}>
       <View style={{flex: 1}}>
